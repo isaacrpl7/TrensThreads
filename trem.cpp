@@ -1,9 +1,9 @@
 #include "trem.h"
 #include <QtCore>
 #include <mutex>
-#define ANDANDO 0;
-#define ESPERANDO 1;
-#define REGIAO_CRITICA 2;
+#define ANDANDO 0
+#define ESPERANDO 1
+#define REGIAO_CRITICA 2
 
 std::mutex mtx[7];
 int state[7];
