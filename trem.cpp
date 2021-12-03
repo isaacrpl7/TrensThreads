@@ -136,11 +136,28 @@ void Trem::run(){
             emit updateGUI(ID, x,y);    //Emite um sinal
             break;
         case 5: //Trem 5
-            if (y == 150 && x <460)
-                x+=10;
-            else if (x == 460 && y < 270)
+            if (y == 150 && x <460) {
+                //inicializando o estado
+                if(state[4] != ESPERANDO)
+                    state[4] = ANDANDO;
+                //andando (caso nao esteja em espera)
+                if(state[4] == ANDANDO){
+                    x+=10;
+                }
+                //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
+                if (x == 380 && y == 150){
+                    state[4] = ESPERANDO;
+                    mtx[2].lock();//usa mutex para verificar se pode entrar na regiao critica
+                    state[4] = ANDANDO;
+                    //std::cout << "Trem 5 entrou na regiao critica 3" << std::endl;
+                }
+            } else if (x == 460 && y < 270) {
                 y+=10;
-            else if (x > 330 && y == 270)
+                if (x == 460 && y > 170){
+                    mtx[2].unlock();
+                    std::cout << "Trem 5 saiu da regiao critica 3" << std::endl;
+                }
+            } else if (x > 330 && y == 270)
                 x-=10;
             else
                 y-=10;
