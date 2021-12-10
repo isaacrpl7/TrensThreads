@@ -29,10 +29,10 @@ void Trem::run(){
             if (y == 30 && x <270){//preparando para entrar na espera
                 if(state[0] != ESPERANDO)
                     state[0] = ANDANDO;
-                if(state[0] == ANDANDO){
+                if(state[0] == ANDANDO && velocidade != 200){
                     x+=10;
                 }
-                if (x == 250 && y == 30){
+                if (x == 250 && y == 30 && velocidade != 200){
                     state[0] = ESPERANDO;
                     //std::cout << "Trem 1 esperando..." << std::endl;
                     mtx[0].lock();
@@ -40,9 +40,9 @@ void Trem::run(){
                     //std::cout << "Trem 1 entrou na regiao critica" << std::endl;
                 }
             }else if (x == 270 && y < 150){
-                if(state[0] == ANDANDO)
+                if(state[0] == ANDANDO && velocidade != 200)
                     y+=10;
-                if (x == 270 && y == 130){
+                if (x == 270 && y == 130 && velocidade != 200){
                     state[0] = ESPERANDO;
                     //std::cout << "Trem 1 esperando..." << std::endl;
                     mtx[5].lock();
@@ -54,14 +54,16 @@ void Trem::run(){
                     mtx[0].unlock();
                 }
             } else if (x > 140 && y == 150) {
-                x-=10;
+                if(velocidade != 200)
+                    x-=10;
                 if(x == 180 && y == 150) {
                     //std::cout << "Trem 1 saiu na regiao critica" << std::endl;
                     mtx[5].unlock();
                 }
-            } else
-                y-=10;
-            emit updateGUI(ID, x,y);    //Emite um sinal
+            } else {
+                if(velocidade != 200)
+                    y-=10;
+            } emit updateGUI(ID, x,y);    //Emite um sinal
             break;
         case 2: //Trem 2
             if (y == 30 && x <400){ //Entrando na regiao de espera e logo apos critica a sua direita
@@ -69,11 +71,11 @@ void Trem::run(){
                 if(state[1] != ESPERANDO)
                     state[1] = ANDANDO;
                 //andando (caso nao esteja em espera)
-                if(state[1] == ANDANDO){
+                if(state[1] == ANDANDO && velocidade != 200){
                     x+=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 380 && y == 30){
+                if (x == 380 && y == 30 && velocidade != 200){
                     state[1] = ESPERANDO;
                     mtx[1].lock();//usa mutex para verificar se pode entrar na regiao critica
                     state[1] = ANDANDO;
@@ -84,11 +86,11 @@ void Trem::run(){
                     //std::cout << "Trem 2 saiu da regiao critica de sua esquerda" << std::endl;
                 }
             } else if (x == 400 && y < 150){ //regiao critica
-                if(state[1] == ANDANDO) {
+                if(state[1] == ANDANDO && velocidade != 200) {
                     y+=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 400 && y == 130){
+                if (x == 400 && y == 130 && velocidade != 200){
                     state[1] = ESPERANDO;
                     std::cout << "Trem 2 entrou em espera do T4..." << std::endl; // PARA EVITAR DEADLOCK ESPERA OS DOIS SAIREM
                     mtx[4].lock();//usa mutex para verificar se pode entrar na regiao critica (espera regiao 5)
@@ -103,9 +105,9 @@ void Trem::run(){
                     mtx[1].unlock();
                 }
             } else if (x > 270 && y == 150) {//preparando para entrar na espera
-                if(state[1] == ANDANDO)
+                if(state[1] == ANDANDO && velocidade != 200)
                     x-=10;
-                if (x == 290 && y == 150){
+                if (x == 290 && y == 150 && velocidade != 200){
                     state[1] = ESPERANDO;
                     //std::cout << "Trem 2 esperando..." << std::endl;
                     mtx[0].lock();
@@ -117,7 +119,8 @@ void Trem::run(){
                     mtx[3].unlock();
                 }
             } else { //Regiao critica
-                y-=10;
+                if(velocidade != 200)
+                    y-=10;
                 if(x == 270 && y == 130) {//ao chegar no ultimo lugar da 2 regiao critica, mudar estado e liberar mutex
                     std::cout << "Trem 2 saiu da 5 regiao critica" << std::endl;
                     mtx[4].unlock();
@@ -127,13 +130,15 @@ void Trem::run(){
             break;
         case 3: //Trem 3
             if (y == 30 && x <530){
-                x+=10;
-            }else if (x == 530 && y < 150)
-                y+=10;
-            else if (x > 400 && y == 150){ //preparando para entrar em espera
-                if(state[2] == ANDANDO)
+                if(velocidade != 200)
+                    x+=10;
+            }else if (x == 530 && y < 150){
+                if(velocidade != 200)
+                    y+=10;
+            } else if (x > 400 && y == 150){ //preparando para entrar em espera
+                if(state[2] == ANDANDO && velocidade != 200)
                     x-=10;
-                if (x == 470){//entrando na regiao critica, mas em espera (EVITANDO DEADLOCK)
+                if (x == 470 && velocidade != 200){//entrando na regiao critica, mas em espera (EVITANDO DEADLOCK)
                     state[2] = ESPERANDO;
                     //std::cout << "Trem 3 esperando o T2..." << std::endl; //O TREM 3 VAI ESPERAR O TREM DOIS PRIMEIRO, PARA DEPOIS
                     mtx[1].lock();                                        //CERTIFICAR DE QUE O TREM 5 PASSOU E EVITAR O DEADLOCK
@@ -145,7 +150,8 @@ void Trem::run(){
                     //std::cout << "Trem 3 andando pela regiao 3..." << std::endl;
                 }
             } else {
-                y-=10;
+                if(velocidade != 200)
+                    y-=10;
                 if (y == 30 && x < 421){
                     mtx[1].unlock();
                     //std::cout << "Trem 3 saiu da regiao critica 2" << std::endl;
@@ -163,14 +169,14 @@ void Trem::run(){
                 if(state[3] != ESPERANDO) {
                     state[3] = ANDANDO;
                 }
-                if(trem4PrimeiraPassagem && x == 200)//lockar na primeira passagem
+                if(trem4PrimeiraPassagem && x == 200 && velocidade != 200)//lockar na primeira passagem
                     mtx[5].lock();
                 //andando (caso nao esteja em espera)
-                if(state[3] == ANDANDO){
+                if(state[3] == ANDANDO && velocidade != 200){
                     x+=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 250 && y == 150){
+                if (x == 250 && y == 150 && velocidade != 200){
                     state[3] = ESPERANDO;
                     std::cout << "Trem 4 em espera do T5" << std::endl;
                     mtx[6].lock();//usa mutex para verificar se pode entrar na regiao critica
@@ -183,7 +189,8 @@ void Trem::run(){
                     trem4PrimeiraPassagem = 0;
                 }
             } else if (x == 330 && y < 270) {
-                y+=10;
+                if(velocidade != 200)
+                    y+=10;
                 if (x == 330 && y == 270){
                     mtx[6].unlock();
                     //std::cout << "Trem 4 saiu da regiao critica 7" << std::endl;
@@ -192,13 +199,14 @@ void Trem::run(){
                     mtx[4].unlock();
                     std::cout << "Trem 4 saiu da regiao critica 5" << std::endl;
                 }
-            } else if (x > 200 && y == 270)
-                x-=10;
-            else {
-                if(state[3] == ANDANDO)
+            } else if (x > 200 && y == 270) {
+                if(velocidade != 200)
+                    x-=10;
+            } else {
+                if(state[3] == ANDANDO && velocidade != 200)
                     y-=10;
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 200 && y == 170){
+                if (x == 200 && y == 170 && velocidade != 200){
                     state[3] = ESPERANDO;
 
                     std::cout << "Trem 4 em espera do T2" << std::endl;
@@ -218,14 +226,14 @@ void Trem::run(){
                 if(state[4] != ESPERANDO) {
                     state[4] = ANDANDO;
                 }
-                if(trem5PrimeiraPassagem && x == 330)//lockar na primeira passagem
+                if(trem5PrimeiraPassagem && x == 330 && velocidade != 200)//lockar na primeira passagem
                     mtx[3].lock();
                 //andando (caso nao esteja em espera)
-                if(state[4] == ANDANDO){
+                if(state[4] == ANDANDO  && velocidade != 200){
                     x+=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 380 && y == 150){
+                if (x == 380 && y == 150 && velocidade != 200){
                     state[4] = ESPERANDO;
                     //std::cout << "Trem 5 em espera do T3" << std::endl;
                     mtx[2].lock();//usa mutex para verificar se pode entrar na regiao critica
@@ -239,17 +247,18 @@ void Trem::run(){
                     trem5PrimeiraPassagem = 0;
                 }
             } else if (x == 460 && y < 270) {
-                y+=10;
+                if(velocidade != 200)
+                    y+=10;
                 if (x == 460 && y == 170){
                     mtx[2].unlock();
                     //std::cout << "Trem 5 saiu da regiao critica 3" << std::endl;
                 }
             } else if (x > 330 && y == 270) {
-                if(state[4] == ANDANDO) {
+                if(state[4] == ANDANDO && velocidade != 200) {
                     x-=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 350 && y == 270){
+                if (x == 350 && y == 270 && velocidade != 200){
                     state[4] = ESPERANDO;
                     std::cout << "Trem 5 em espera do T4" << std::endl;
                     mtx[6].lock();//usa mutex para verificar se pode entrar na regiao critica
@@ -258,11 +267,11 @@ void Trem::run(){
                 }
             } else {
                 //andando (caso nao esteja em espera)
-                if(state[4] == ANDANDO){
+                if(state[4] == ANDANDO && velocidade != 200){
                     y-=10;
                 }
                 //escolhendo o lugar onde espera (verificando se nao esta na regiao critica)
-                if (x == 330 && y == 170){
+                if (x == 330 && y == 170 && velocidade != 200){
                     state[4] = ESPERANDO;
                     mtx[3].lock();//usa mutex para verificar se pode entrar na regiao critica
                     state[4] = ANDANDO;
