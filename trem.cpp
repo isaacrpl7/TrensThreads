@@ -169,8 +169,10 @@ void Trem::run(){
                 if(state[3] != ESPERANDO) {
                     state[3] = ANDANDO;
                 }
-                if(trem4PrimeiraPassagem && x == 200 && velocidade != 200)//lockar na primeira passagem
+                if(trem4PrimeiraPassagem && x == 200 && velocidade != 200){//lockar na primeira passagem
                     mtx[5].lock();
+                    mtx[4].lock();
+                }
                 //andando (caso nao esteja em espera)
                 if(state[3] == ANDANDO && velocidade != 200){
                     x+=10;
